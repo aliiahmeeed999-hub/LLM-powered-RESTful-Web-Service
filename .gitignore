@@ -1,0 +1,17 @@
+# Java / Maven / Liberty
+server/target/
+server/src/main/liberty/config/server.env
+*.class
+# Node / Expo
+node_modules/
+.expo/
+# Python
+__pycache__/
+*.pyc
+.venv/
+# IDE / OS
+.idea/
+.vscode/
+*.iml
+.DS_Store
+Thumbs.db

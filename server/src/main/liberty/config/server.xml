@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<server description="Darija Translator - Open Liberty embedded server">
+
+    <featureManager>
+        <feature>restfulWS-3.1</feature>      <!-- Jakarta RESTful Web Services -->
+        <feature>jsonb-3.0</feature>          <!-- Jakarta JSON Binding (DTO <-> JSON) -->
+        <feature>jsonp-2.1</feature>          <!-- Jakarta JSON Processing (LLM payloads) -->
+        <feature>cdi-4.0</feature>            <!-- Jakarta Contexts and Dependency Injection -->
+        <feature>appSecurity-5.0</feature>    <!-- Jakarta Security 3.0 + Jakarta Authentication 3.0 -->
+    </featureManager>
+
+    <!-- Values below are defaults; they can be overridden from pom.xml (liberty.var.*) -->
+    <variable name="http.port" defaultValue="9080"/>
+    <variable name="https.port" defaultValue="9443"/>
+    <variable name="app.context.root" defaultValue="/translator"/>
+
+    <!-- host="*" so phones / emulators on the LAN can reach the service -->
+    <httpEndpoint id="defaultHttpEndpoint" host="*"
+                  httpPort="${http.port}" httpsPort="${https.port}"/>
+
+    <!-- CORS for browser-based clients (the PHP page's JS, web demos).
+         The Chrome extension does not need it thanks to host_permissions, but it does no harm. -->
+    <cors domain="/translator/api"
+          allowedOrigins="*"
+          allowedMethods="GET, POST, OPTIONS"
+          allowedHeaders="Authorization, Content-Type, Accept"
+          exposeHeaders="X-Translation-Provider, X-Translation-Cache"
+          allowCredentials="false"
+          maxAge="3600"/>
+
+    <webApplication location="translator.war" contextRoot="${app.context.root}">
+        <application-bnd>
+            <!-- Authentication is performed by the application's own Jakarta Security
+                 mechanism (HTTP Basic) and identity store. Every caller that the identity store
+                 accepts is granted the "translator" role. -->
+            <security-role name="translator">
+                <special-subject type="ALL_AUTHENTICATED_USERS"/>
+            </security-role>
+        </application-bnd>
+    </webApplication>
+
+    <!-- Do not leak server internals in error pages -->
+    <webContainer disableXPoweredBy="true"/>
+
+    <logging consoleLogLevel="INFO" traceSpecification="*=info"/>
+</server>

@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>ma.aui.darija</groupId>
+    <artifactId>darija-translator</artifactId>
+    <version>1.0.0</version>
+    <packaging>war</packaging>
+
+    <name>Darija Translator - LLM-powered RESTful Web Service</name>
+    <description>
+        Jakarta RESTful Web Service that translates text (English, French, ...) into
+        Moroccan Arabic Dialect (Darija) using an LLM (Google Gemini or a local Ollama model).
+        Secured with HTTP Basic authentication through Jakarta Security / Jakarta Authentication.
+    </description>
+
+    <properties>
+        <maven.compiler.release>17</maven.compiler.release>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <failOnMissingWebXml>false</failOnMissingWebXml>
+
+        <jakartaee.version>10.0.0</jakartaee.version>
+        <junit.version>5.10.2</junit.version>
+        <liberty.plugin.version>3.11.3</liberty.plugin.version>
+
+        <!-- Open Liberty runtime settings (embedded container) -->
+        <liberty.var.http.port>9080</liberty.var.http.port>
+        <liberty.var.https.port>9443</liberty.var.https.port>
+        <liberty.var.app.context.root>/translator</liberty.var.app.context.root>
+    </properties>
+
+    <dependencies>
+        <!-- Jakarta EE 10 APIs (REST 3.1, JSON-B/JSON-P, CDI 4.0, Security 3.0, Authentication 3.0).
+             Provided by the Open Liberty runtime at deployment time. -->
+        <dependency>
+            <groupId>jakarta.platform</groupId>
+            <artifactId>jakarta.jakartaee-api</artifactId>
+            <version>${jakartaee.version}</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <!-- Unit tests (pure Java parts: prompt building, config, cache) -->
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <version>${junit.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <!-- JSON-P implementation for tests only (Liberty ships its own at runtime) -->
+        <dependency>
+            <groupId>org.eclipse.parsson</groupId>
+            <artifactId>parsson</artifactId>
+            <version>1.1.5</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <finalName>translator</finalName>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.13.0</version>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-war-plugin</artifactId>
+                <version>3.4.0</version>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>3.2.5</version>
+            </plugin>
+
+            <!-- Embedded container: Open Liberty.
+                 mvn liberty:run                         -> start the server in the foreground
+                 mvn liberty:dev                         -> dev mode with hot reload
+                 mvn package liberty:package -Dinclude=runnable  -> self-contained runnable JAR -->
+            <plugin>
+                <groupId>io.openliberty.tools</groupId>
+                <artifactId>liberty-maven-plugin</artifactId>
+                <version>${liberty.plugin.version}</version>
+                <configuration>
+                    <serverName>darijaServer</serverName>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+</project>
