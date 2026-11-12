@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns="https://jakarta.ee/xml/ns/jakartaee"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="https://jakarta.ee/xml/ns/jakartaee https://jakarta.ee/xml/ns/jakartaee/web-app_6_0.xsd"
+         version="6.0">
+
+    <display-name>Darija Translator</display-name>
+
+    <!-- The translation endpoint is protected: the Jakarta Security HTTP Basic
+         authentication mechanism (see SecurityConfig) answers 401 + WWW-Authenticate
+         when no / wrong credentials are sent. OPTIONS is left open for CORS preflight. -->
+    <security-constraint>
+        <web-resource-collection>
+            <web-resource-name>Translator API</web-resource-name>
+            <url-pattern>/api/translate</url-pattern>
+            <url-pattern>/api/translate/*</url-pattern>
+            <http-method-omission>OPTIONS</http-method-omission>
+        </web-resource-collection>
+        <auth-constraint>
+            <role-name>translator</role-name>
+        </auth-constraint>
+    </security-constraint>
+
+    <security-role>
+        <role-name>translator</role-name>
+    </security-role>
+
+    <!-- /api/health stays public (no constraint) so clients can test connectivity -->
+</web-app>
