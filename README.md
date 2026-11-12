@@ -306,4 +306,4 @@ Features: type or **📋 Paste & translate** from the clipboard, source-language
 
 ---
 
-**Docs:** [demo video script](docs/DEMO_SCRIPT.md) · [technical blog post draft](docs/BLOG_POST.md)
+**Docs:** [AI prompts log](docs/PROMPTS_LOG.md) · [demo video script](docs/DEMO_SCRIPT.md) · [technical blog post draft](docs/BLOG_POST.md)
