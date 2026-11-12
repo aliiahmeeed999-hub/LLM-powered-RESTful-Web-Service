@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Darija Translator - Microphone access</title>
+  <link rel="stylesheet" href="sidepanel.css" />
+  <style>
+    body { display: grid; place-items: center; min-height: 100vh; }
+    .card { max-width: 440px; text-align: center; padding: 28px; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <img src="icons/icon128.png" alt="" width="72" height="72" style="margin: 0 auto" />
+    <h1>Allow the microphone</h1>
+    <p class="muted">Chrome only shows the microphone prompt in a normal tab, not in the side panel.
+      Allow access once here; voice input and voice-to-voice translation will then work in the panel.</p>
+    <button id="grant" class="primary" type="button">Allow microphone</button>
+    <p id="result" class="muted"></p>
+  </div>
+  <script src="permission.js"></script>
+</body>
+</html>

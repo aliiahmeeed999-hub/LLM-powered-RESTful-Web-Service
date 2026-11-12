@@ -1,0 +1,53 @@
+{
+  "manifest_version": 3,
+  "name": "Darija Translator",
+  "short_name": "Darija",
+  "version": "1.0.0",
+  "description": "Translate any selected text into Moroccan Darija in Chrome's side panel, powered by an LLM REST service. Read aloud and voice-to-voice included.",
+  "minimum_chrome_version": "116",
+  "permissions": [
+    "sidePanel",
+    "contextMenus",
+    "storage",
+    "activeTab",
+    "scripting",
+    "clipboardWrite"
+  ],
+  "host_permissions": [
+    "http://localhost:9080/*",
+    "http://127.0.0.1:9080/*"
+  ],
+  "optional_host_permissions": [
+    "http://*/*",
+    "https://*/*"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "side_panel": {
+    "default_path": "sidepanel.html"
+  },
+  "action": {
+    "default_title": "Open Darija Translator",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "32": "icons/icon32.png",
+      "48": "icons/icon48.png"
+    }
+  },
+  "icons": {
+    "16": "icons/icon16.png",
+    "32": "icons/icon32.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  "commands": {
+    "translate-selection": {
+      "suggested_key": {
+        "default": "Ctrl+Shift+Y",
+        "mac": "Command+Shift+Y"
+      },
+      "description": "Translate the selected text to Darija"
+    }
+  }
+}

@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Darija Translator</title>
+  <link rel="stylesheet" href="sidepanel.css" />
+</head>
+<body>
+  <header class="top">
+    <div class="brand">
+      <img src="icons/icon48.png" alt="" width="28" height="28" />
+      <div>
+        <h1>Darija Translator</h1>
+        <p class="sub">Any language → الدارجة المغربية</p>
+      </div>
+    </div>
+    <span id="status" class="status" title="Server status">
+      <span class="dot"></span><span id="statusText">…</span>
+    </span>
+  </header>
+
+  <main>
+    <section class="card">
+      <div class="row between">
+        <label class="inline">
+          From
+          <select id="sourceLang">
+            <option value="auto">Detect language</option>
+            <option value="en">English</option>
+            <option value="fr">French</option>
+            <option value="es">Spanish</option>
+            <option value="ar">Arabic (MSA)</option>
+            <option value="de">German</option>
+            <option value="it">Italian</option>
+          </select>
+        </label>
+        <div class="segmented" role="radiogroup" aria-label="Darija script">
+          <button type="button" data-script="arabic" role="radio">عربية</button>
+          <button type="button" data-script="latin" role="radio">Latin</button>
+        </div>
+      </div>
+
+      <div class="input-wrap">
+        <textarea id="input" rows="5" maxlength="5000"
+          placeholder="Select text on any page → right-click → “Translate to Darija”, or type / speak here…"></textarea>
+        <div class="input-tools">
+          <span id="charCount" class="muted">0 / 5000</span>
+          <button id="clearBtn" class="icon" type="button" title="Clear">✕</button>
+          <button id="micBtn" class="icon" type="button" title="Speak (speech-to-text)">🎤</button>
+        </div>
+      </div>
+
+      <div class="row gap">
+        <button id="translateBtn" class="primary" type="button">Translate <kbd>Ctrl</kbd>+<kbd>Enter</kbd></button>
+        <button id="voiceBtn" class="secondary" type="button" title="Speak, translate and hear the Darija">
+          🗣️ Voice → Voice
+        </button>
+      </div>
+    </section>
+
+    <section class="card result" id="resultCard" hidden>
+      <div class="row between">
+        <span class="label">Darija</span>
+        <span id="meta" class="muted small"></span>
+      </div>
+      <div id="output" class="output" lang="ar-MA" dir="rtl"></div>
+      <div class="row gap">
+        <button id="copyBtn" class="secondary" type="button">📋 Copy</button>
+        <button id="speakBtn" class="secondary" type="button">🔊 Read aloud</button>
+        <button id="stopBtn" class="secondary" type="button" hidden>⏹ Stop</button>
+      </div>
+    </section>
+
+    <div id="error" class="error" role="alert" hidden></div>
+    <div id="toast" class="toast" hidden></div>
+
+    <details class="card" id="historyBox">
+      <summary>History <span id="historyCount" class="muted"></span></summary>
+      <ul id="history" class="history"></ul>
+      <button id="clearHistoryBtn" class="link" type="button">Clear history</button>
+    </details>
+
+    <details class="card" id="settingsBox">
+      <summary>Settings</summary>
+      <form id="settingsForm" class="settings">
+        <label>Server URL
+          <input name="serverUrl" type="url" required placeholder="http://localhost:9080/translator/api" />
+        </label>
+        <div class="row gap">
+          <label class="grow">Username <input name="username" autocomplete="username" required /></label>
+          <label class="grow">Password <input name="password" type="password" autocomplete="current-password" required /></label>
+        </div>
+        <label>Microphone language
+          <select name="speechLang">
+            <option value="en-US">English (US)</option>
+            <option value="en-GB">English (UK)</option>
+            <option value="fr-FR">French</option>
+            <option value="es-ES">Spanish</option>
+            <option value="ar-MA">Arabic (Morocco)</option>
+            <option value="de-DE">German</option>
+          </select>
+        </label>
+        <label class="check"><input type="checkbox" name="autoTranslate" /> Translate selections automatically</label>
+        <label class="check"><input type="checkbox" name="autoCopy" /> Copy translations to the clipboard</label>
+        <label class="check"><input type="checkbox" name="autoSpeak" /> Read translations aloud automatically</label>
+        <div class="row gap">
+          <button class="primary" type="submit">Save</button>
+          <button id="testBtn" class="secondary" type="button">Test connection</button>
+        </div>
+      </form>
+    </details>
+  </main>
+
+  <script type="module" src="sidepanel.js"></script>
+</body>
+</html>
