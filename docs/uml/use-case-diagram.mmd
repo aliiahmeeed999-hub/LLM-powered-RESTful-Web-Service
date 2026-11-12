@@ -1,0 +1,34 @@
+---
+title: Darija Translator - Use Case Diagram
+---
+flowchart LR
+    user(["👤 User"])
+    admin(["👤 Administrator"])
+    llm(["🤖 LLM provider<br/>(Gemini / Ollama)"])
+
+    subgraph system["Darija Translator system"]
+        direction TB
+        uc1(["Translate text to Darija"])
+        uc2(["Translate selected web text<br/>(right-click → side panel)"])
+        uc3(["Translate speech<br/>(voice → voice)"])
+        uc4(["Read translation aloud"])
+        uc5(["Choose Arabic or Latin script"])
+        uc6(["Copy translation / view history"])
+        uc7(["Authenticate (HTTP Basic)"])
+        uc8(["Configure server, users, LLM"])
+        uc9(["Check service health"])
+    end
+
+    user --- uc1
+    user --- uc2
+    user --- uc3
+    user --- uc4
+    user --- uc5
+    user --- uc6
+    user --- uc9
+    admin --- uc8
+    uc2 -. "«include»" .-> uc1
+    uc3 -. "«include»" .-> uc1
+    uc3 -. "«include»" .-> uc4
+    uc1 -. "«include»" .-> uc7
+    uc1 --- llm

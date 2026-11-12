@@ -1,0 +1,191 @@
+---
+title: Darija Translator - Class Diagram (server, package ma.aui.darija)
+---
+classDiagram
+    direction TB
+
+    class Application {
+        <<Jakarta REST>>
+    }
+    class TranslatorApplication {
+        <<@ApplicationPath("/api")>>
+    }
+    Application <|-- TranslatorApplication
+
+    namespace api {
+        class TranslatorResource {
+            <<@Path("/translate") @RolesAllowed("translator")>>
+            -TranslationService translationService
+            -SecurityContext securityContext
+            +translate(TranslationRequest) Response
+            +translate(String text, String sourceLang, String script) Response
+            +translateQuery(String text, String sourceLang, String script) Response
+        }
+        class HealthResource {
+            <<@Path("/health")>>
+            -TranslationService translationService
+            +health() Map
+        }
+        class TranslationRequest {
+            <<DTO>>
+            -String text
+            -String sourceLang
+            -String script
+        }
+        class TranslationResponse {
+            <<DTO>>
+            -String original
+            -String translation
+            -String sourceLang
+            -String targetLang
+            -String script
+            -String provider
+            -String model
+            -boolean cached
+            -long elapsedMs
+            -String user
+            +from(TranslationResult, String)$ TranslationResponse
+        }
+        class ErrorResponse {
+            <<DTO>>
+            -int status
+            -String error
+            -String message
+        }
+        class InvalidRequestExceptionMapper {
+            <<@Provider>>
+            +toResponse(InvalidRequestException) Response
+        }
+        class LlmExceptionMapper {
+            <<@Provider>>
+            +toResponse(LlmException) Response
+        }
+    }
+
+    namespace service {
+        class TranslationService {
+            <<@ApplicationScoped>>
+            -LlmClient llm
+            -AppConfig config
+            -TranslationCache cache
+            +translate(String text, String sourceLang, String script) TranslationResult
+            +providerName() String
+            +modelName() String
+            +isLlmConfigured() boolean
+        }
+        class PromptBuilder {
+            <<utility>>
+            +normalizeSourceLanguage(String)$ String
+            +systemPrompt(String, Script)$ String
+            +userMessage(String)$ String
+            +cleanOutput(String)$ String
+        }
+        class Script {
+            <<enumeration>>
+            ARABIC
+            LATIN
+        }
+        class TranslationCache {
+            -Map~String,String~ entries
+            +get(String) String
+            +put(String, String)
+        }
+        class TranslationResult {
+            <<record>>
+            original, translation, sourceLanguage
+            script, provider, model, cached, elapsedMs
+        }
+        class InvalidRequestException
+    }
+
+    namespace llm {
+        class LlmClient {
+            <<interface>>
+            +complete(String systemPrompt, String userMessage) String
+            +provider() String
+            +model() String
+            +isConfigured() boolean
+        }
+        class GeminiClient {
+            -HttpClient http
+            -String apiKey
+            -String model
+            +complete(String, String) String
+        }
+        class OllamaClient {
+            -HttpClient http
+            -String baseUrl
+            -String model
+            +complete(String, String) String
+        }
+        class LlmClientProducer {
+            <<@ApplicationScoped factory>>
+            +llmClient() LlmClient
+        }
+        class LlmException {
+            -Kind kind
+        }
+    }
+
+    namespace security {
+        class HttpAuthenticationMechanism {
+            <<interface, Jakarta Security>>
+        }
+        class IdentityStore {
+            <<interface, Jakarta Security>>
+        }
+        class BasicAuthenticationMechanism {
+            <<@ApplicationScoped>>
+            -IdentityStoreHandler identityStoreHandler
+            +validateRequest(req, res, HttpMessageContext) AuthenticationStatus
+            ~parseBasicHeader(String)$ Optional
+        }
+        class InMemoryIdentityStore {
+            <<@ApplicationScoped>>
+            -AppConfig config
+            +validate(Credential) CredentialValidationResult
+        }
+    }
+
+    namespace config {
+        class AppConfig {
+            <<@ApplicationScoped>>
+            +llmProvider() String
+            +geminiApiKey() String
+            +geminiModel() String
+            +ollamaUrl() String
+            +users() Map
+            +maxTextLength() int
+        }
+    }
+
+    TranslatorResource ..> TranslationRequest : consumes
+    TranslatorResource ..> TranslationResponse : produces
+    TranslatorResource --> TranslationService : @Inject
+    HealthResource --> TranslationService : @Inject
+    InvalidRequestExceptionMapper ..> ErrorResponse
+    LlmExceptionMapper ..> ErrorResponse
+    InvalidRequestExceptionMapper ..> InvalidRequestException : maps to 400
+    LlmExceptionMapper ..> LlmException : maps to 4xx/5xx
+
+    TranslationService --> LlmClient : @Inject
+    TranslationService --> AppConfig : @Inject
+    TranslationService *-- TranslationCache
+    TranslationService ..> PromptBuilder : uses
+    TranslationService ..> TranslationResult : creates
+    TranslationService ..> InvalidRequestException : throws
+    PromptBuilder *-- Script : nested enum
+    TranslationResponse ..> TranslationResult : built from
+
+    LlmClient <|.. GeminiClient
+    LlmClient <|.. OllamaClient
+    LlmClientProducer ..> GeminiClient : creates
+    LlmClientProducer ..> OllamaClient : creates
+    LlmClientProducer --> AppConfig
+    GeminiClient ..> LlmException : throws
+    OllamaClient ..> LlmException : throws
+
+    HttpAuthenticationMechanism <|.. BasicAuthenticationMechanism
+    IdentityStore <|.. InMemoryIdentityStore
+    BasicAuthenticationMechanism ..> InMemoryIdentityStore : via IdentityStoreHandler
+    InMemoryIdentityStore --> AppConfig

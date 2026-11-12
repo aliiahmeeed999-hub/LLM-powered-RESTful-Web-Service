@@ -1,0 +1,43 @@
+---
+title: Translate a selection from the Chrome extension (context menu → side panel → REST → LLM)
+---
+sequenceDiagram
+    autonumber
+    actor U as User
+    participant P as Web page
+    participant BG as Extension service worker<br/>(background.js)
+    participant SP as Side panel<br/>(sidepanel.js)
+    participant C as Open Liberty<br/>(Jakarta Security)
+    participant R as TranslatorResource
+    participant S as TranslationService
+    participant L as LlmClient<br/>(Gemini / Ollama)
+
+    U->>P: select text, right-click
+    U->>BG: "Translate "%s" to Darija"
+    BG->>SP: chrome.sidePanel.open(windowId)
+    BG->>P: scripting.executeScript(getSelection)
+    P-->>BG: selected text
+    BG->>SP: storage.session.set(pendingSelection)
+    SP->>SP: paste text into the input (auto-translate)
+    SP->>C: POST /translator/api/translate<br/>Authorization: Basic base64(user:pass)<br/>{"text": "...", "script": "arabic"}
+    C->>C: BasicAuthenticationMechanism.validateRequest()
+    C->>C: InMemoryIdentityStore.validate(credential)
+    alt invalid or missing credentials
+        C-->>SP: 401 Unauthorized + WWW-Authenticate: Basic
+        SP-->>U: "Wrong username or password" (opens Settings)
+    else valid caller (role "translator")
+        C->>R: translate(TranslationRequest)
+        R->>S: translate(text, sourceLang, script)
+        alt cache hit
+            S-->>R: TranslationResult (cached = true)
+        else cache miss
+            S->>S: PromptBuilder.systemPrompt() / userMessage()
+            S->>L: complete(systemPrompt, userMessage)
+            L->>L: HTTPS POST models/gemini-2.5-flash:generateContent
+            L-->>S: raw model text
+            S->>S: cleanOutput() + cache.put()
+            S-->>R: TranslationResult
+        end
+        R-->>SP: 200 OK TranslationResponse (JSON)
+        SP-->>U: Darija shown, copied to clipboard, read aloud (optional)
+    end

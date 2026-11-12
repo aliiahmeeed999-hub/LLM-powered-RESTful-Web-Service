@@ -1,0 +1,26 @@
+digraph deployment {
+  graph [rankdir=LR, fontname="Helvetica", fontsize=12, label="Darija Translator - Deployment Diagram", labelloc=t, pad=0.4, nodesep=0.5, ranksep=1.1, bgcolor="white"];
+  node  [fontname="Helvetica", fontsize=11, shape=box3d, style=filled, fillcolor="#fff8f0", color="#7a5a3a"];
+  edge  [fontname="Helvetica", fontsize=10, color="#444444"];
+
+  subgraph cluster_clients {
+    label="Client devices"; style="rounded,dashed"; color="#999999"; fontsize=12;
+
+    browser [label=<<b>«device» User PC</b><br/><br/>«execution environment» Google Chrome<br/><br/>«artifact» chrome-extension/<br/>manifest.json (MV3)<br/>background.js · sidepanel.html/js<br/>api.js · speech.js>];
+    phpbox  [label=<<b>«device» Web host / PC</b><br/><br/>«execution environment» PHP 8 + cURL<br/>(php -S localhost:8000)<br/><br/>«artifact» clients/php/<br/>index.php · cli.php<br/>DarijaTranslatorClient.php>];
+    pybox   [label=<<b>«device» PC</b><br/><br/>«execution environment» Python 3<br/><br/>«artifact» clients/python/<br/>darija_client.py (CLI)<br/>gui.py (Tkinter)>];
+    phone   [label=<<b>«device» Android / iOS phone</b><br/><br/>«execution environment» Expo / React Native<br/><br/>«artifact» clients/mobile/<br/>App.js · src/api.js>];
+  }
+
+  server [fillcolor="#eef7f0", color="#006233", label=<<b>«device» Application server (localhost or LAN)</b><br/><br/>«execution environment» JVM 17+<br/>«execution environment» Open Liberty (embedded, liberty-maven-plugin)<br/>features: restfulWS-3.1 · jsonb-3.0 · jsonp-2.1 · cdi-4.0 · appSecurity-5.0<br/><br/>«artifact» translator.war<br/>context root /translator · port 9080<br/>«config» server.xml · server.env>];
+
+  gemini [fillcolor="#eef2fb", color="#3557a6", label=<<b>«device» Google Cloud</b><br/><br/>«service» Gemini API<br/>generativelanguage.googleapis.com<br/>model gemini-2.5-flash>];
+  ollama [fillcolor="#f3f3f3", color="#666666", label=<<b>«device» Local machine (optional)</b><br/><br/>«execution environment» Ollama<br/>lightweight LLM (qwen2.5:3b)<br/>port 11434>];
+
+  browser -> server [label="HTTP/REST  JSON\nBasic auth  :9080"];
+  phpbox  -> server [label="HTTP/REST (cURL)\nBasic auth"];
+  pybox   -> server [label="HTTP/REST (urllib)\nBasic auth"];
+  phone   -> server [label="HTTP/REST (fetch)\nWi-Fi LAN"];
+  server  -> gemini [label="HTTPS  generateContent\nx-goog-api-key"];
+  server  -> ollama [label="HTTP  /api/chat\n(LLM_PROVIDER=ollama)", style=dashed];
+}
